@@ -88,13 +88,14 @@ h1 {
 #footer {
   width: 30%;
   position:fixed;
-  bottom: 20px;
-  border-radius:15px;
-  padding-top:3px;
+  bottom: 30px;
   height: 30px;
-  background-color: #9f7817;
   text-align: center;
 
+}
+
+#footer img {
+  height: 40px;
 }
 
 .logo {
