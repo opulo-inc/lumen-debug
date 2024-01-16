@@ -27,7 +27,7 @@ body {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-evenly;
+  justify-content: space-between;
   align-content: flex-start;
 
   min-width: 320px;
@@ -40,6 +40,14 @@ h1 {
   line-height: 1.1;
 }
 
+h2 {
+  font-size:2em;
+  line-height: 1;
+  margin-top:0px;
+  margin-bottom: 0px;
+  color:#ddd
+}
+
 #header-pill {
   width: 200px;
   height: 25px;
@@ -47,12 +55,22 @@ h1 {
   text-align: center;
   background-color: #222;
   color:white;
-  margin:auto;
+  margin-left:4%;
   margin-top: 20px;
   margin-bottom: 20px;
-  padding:20px;
+  padding:1em;
   box-shadow:0 1px 10px 0 rgba(230, 230, 230, 0.532);
 
+}
+
+#connect {
+  margin-right:4%;
+
+  margin-top:20px;
+  margin-bottom:20px;
+  padding:1em;
+  background-color: #b3d9b2;
+  color:black;
 }
 
 #main-app {
@@ -62,27 +80,90 @@ h1 {
   border-radius: 7px;
   display:block;
   padding: 20px;
+
+  display:flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+  align-content: flex-start;
+
+  height:100%;
+}
+
+#control {
+  width:400px;
+  display:flex;
+  flex-wrap: wrap;
+  padding:1%;
+  background-color: #213547;
+}
+
+#control .thirdwidth {
+  width:31%;  
+  margin:1%;
+}
+
+#control .halfwidth {
+  width:47%;
+  margin:1%;
+}
+
+#testing {
+  width:100%;
+  display:flex;
+  flex-wrap: wrap;
+  padding:1em;
+  background-color: #555;
+}
+
+#testing button {
+  margin:5px;
+}
+
+#repl {
+  flex-grow: 1;
+  margin: 0 auto;
+  padding: 1%;
+  margin-top:0px;
+  
+  background-color: #888;
+  display:flex;
+  align-content: flex-start;
+  flex-flow: row wrap;
+
 }
 
 #console {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  
   text-align: center;
   background-color: #fff;
-  margin-top:20px;
+  height: 250px;
+  
   color:black;
   text-align: left;
-  height: 400px;
+  
   overflow-y:auto;
   position:relative;
   scroll-snap-type:proximity;
   font-family: monospace;
+  margin-bottom: 10px;
+  width:100%;
+  
   /* display:none; */
 }
 
 #console p {
   height:15px;
+}
+
+#send {
+  width:100px;
+  display:block;
+  margin-right:10px;
+}
+
+#repl-input {
+  flex-grow:1;
+  display:block;
 }
 
 #footer {

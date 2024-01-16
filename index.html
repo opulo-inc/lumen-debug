@@ -11,12 +11,32 @@
   </head>
   <body>
     <div id="header-pill">LumenPnP Debug Tool</div>
-    <div id="intro"></div>
+    <button id="connect" type="button">Connect</button>
     <div id="main-app">
-      <button id="connect" type="button">Connect</button>
-      <button id="tmc" type="button">Test TMC Drivers</button>
-      <button id="vac" type="button">Test Vacuum Sensors</button>
-      <div id="console"></div>
+      <div id="testing">
+        <h2 style="width:100%">Tests</h2>
+        <button id="tmc" type="button">Test TMC Drivers</button>
+        <button id="vac" type="button">Test Vacuum Sensors</button>
+      </div>
+      <div id="control">
+        <h2 style="width:100%">Control</h2>
+        <button id="left-air-on" class="thirdwidth" type="button">Left Air On</button>
+        <button id="right-air-on" class="thirdwidth" type="button">Right Air On</button>
+        <button id="right-lights-on" class="thirdwidth" type="button">Ring Lights On</button>
+
+        <button id="left-air-off" class="thirdwidth" type="button">Left Air Off</button>
+        <button id="right-air-off" class="thirdwidth" type="button">Right Air Off</button>
+        <button id="ring-lights-off" class="thirdwidth" type="button">Ring Lights Off</button>
+
+        <button id="left-vac" class="halfwidth" type="button">Left Vac</button>
+        <button id="right-vac" class="halfwidth" type="button">Right Vac</button>
+      </div>
+      <div id="repl">
+        <div id="console"></div>
+        <button id="send" type="button">Send</button>
+        <input id="repl-input" type="text" placeholder="Send Gcode"/>
+      </div>
+      
     </div>
     <div id="footer"><img src="public/opulo-gold-alpha-tiny.png"></div>
     

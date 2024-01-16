@@ -11,6 +11,10 @@ class serialManager {
     document.getElementById("connect").addEventListener("click", () => {
       this.connect();
     });
+
+    document.getElementById("send").addEventListener("click", () => {
+      this.sendRepl();
+    });
     
     document.getElementById("tmc").addEventListener("click", () => {
       this.testTMC();
@@ -59,6 +63,8 @@ class serialManager {
   
   
       document.querySelector("#connect").style.background = 'green';
+      document.querySelector("#connect").style.color = 'white';
+      document.querySelector("#connect").innerHTML = 'Connected'; 
       return true
   }
   
@@ -123,6 +129,11 @@ class serialManager {
     }
   }
 
+  async sendRepl() {
+    let command = [document.querySelector("#repl-input").value];
+    this.send(command);
+
+  }
   // tests
 
   async testTMC(){
