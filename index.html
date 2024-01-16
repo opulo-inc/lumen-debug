@@ -7,8 +7,8 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/lumen-icon-wA_suQRQ.png">
     <link rel="shortcut icon" type="image/x-icon" href="/assets/lumen-icon-wA_suQRQ.png">
     <title>LumenPnP Debug</title>
-    <script type="module" crossorigin src="/assets/index-RNzQfpS3.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-9X9zGtDh.css">
+    <script type="module" crossorigin src="/assets/index-2yGuOwwJ.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-obXeWUbo.css">
   </head>
   <body>
     <div id="header-pill">LumenPnP Debug Tool</div>
@@ -18,25 +18,33 @@
         <h2 style="width:100%">Tests</h2>
         <button id="tmc" type="button">Test TMC Drivers</button>
         <button id="vac" type="button">Test Vacuum Sensors</button>
+        <div id="feeders">
+          <h2 style="width:100%;margin-bottom:10px;">Feeders</h2>
+          <button id="feeder-scan">Scan</button>
+        </div>
       </div>
-      <div id="control">
-        <h2 style="width:100%">Control</h2>
-        <button id="left-air-on" class="thirdwidth" type="button">Left Air On</button>
-        <button id="right-air-on" class="thirdwidth" type="button">Right Air On</button>
-        <button id="right-lights-on" class="thirdwidth" type="button">Ring Lights On</button>
 
-        <button id="left-air-off" class="thirdwidth" type="button">Left Air Off</button>
-        <button id="right-air-off" class="thirdwidth" type="button">Right Air Off</button>
-        <button id="ring-lights-off" class="thirdwidth" type="button">Ring Lights Off</button>
-
-        <button id="left-vac" class="halfwidth" type="button">Left Vac</button>
-        <button id="right-vac" class="halfwidth" type="button">Right Vac</button>
+      <div id="control-pane">
+        <div id="control">
+          <h2 style="width:100%">Control</h2>
+          <button id="left-air-on" class="thirdwidth" type="button">Left Air On</button>
+          <button id="right-air-on" class="thirdwidth" type="button">Right Air On</button>
+          <button id="ring-lights-on" class="thirdwidth" type="button">Ring Lights On</button>
+  
+          <button id="left-air-off" class="thirdwidth" type="button">Left Air Off</button>
+          <button id="right-air-off" class="thirdwidth" type="button">Right Air Off</button>
+          <button id="ring-lights-off" class="thirdwidth" type="button">Ring Lights Off</button>
+  
+          <button id="left-vac" class="halfwidth" type="button">Left Vac</button>
+          <button id="right-vac" class="halfwidth" type="button">Right Vac</button>
+        </div>
+        <div id="repl">
+          <div id="console"></div>
+          <button id="send" type="button">Send</button>
+          <input id="repl-input" type="text" placeholder="Send Gcode"/>
+        </div>
       </div>
-      <div id="repl">
-        <div id="console"></div>
-        <button id="send" type="button">Send</button>
-        <input id="repl-input" type="text" placeholder="Send Gcode"/>
-      </div>
+      
       
     </div>
     <div id="footer"><img src="/assets/opulo-gold-alpha-tiny-DUNq2d90.png"></div>
