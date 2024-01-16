@@ -4,6 +4,7 @@ class serialManager {
   constructor() {
     this.encoder = new TextEncoder();
     this.decoder = new TextDecoder();
+    this.consoleDiv = document.getElementById("console");
     this.port;
 
     this.receiveBuffer = [];
@@ -23,6 +24,58 @@ class serialManager {
     document.getElementById("vac").addEventListener("click", () => {
       this.testVac();
     });
+
+    // control pane
+    document.getElementById("left-air-on").addEventListener("click", () => {
+      this.leftAirOn();
+    });
+
+    document.getElementById("left-air-off").addEventListener("click", () => {
+      this.leftAirOff();
+    });
+
+    document.getElementById("right-air-on").addEventListener("click", () => {
+      this.rightAirOn();
+    });
+
+    document.getElementById("right-air-off").addEventListener("click", () => {
+      this.rightAirOff();
+    });
+
+    document.getElementById("ring-lights-on").addEventListener("click", () => {
+      this.ledOn();
+    });
+
+    document.getElementById("ring-lights-off").addEventListener("click", () => {
+      this.ledOff();
+    });
+
+    document.getElementById("left-vac").addEventListener("click", () => {
+      this.readLeftVac();
+    });
+
+    document.getElementById("right-vac").addEventListener("click", () => {
+      this.readRightVac();
+    });
+
+  }
+
+  appendToConsole(message, direction){
+    let newConsoleEntry = document.createElement('p')
+    let timestamp = new Date().toISOString();
+    let dir = "";
+
+    if(direction){
+      dir = "[SEND]"
+    }
+    else{
+      dir = "[RECE]"
+    }
+    
+    newConsoleEntry.innerHTML = dir + " - " + timestamp + " - " + message + '\n';
+    this.consoleDiv.appendChild(newConsoleEntry)
+    
+    this.consoleDiv.scrollTop = this.consoleDiv.scrollHeight;
   }
 
   // drops and returns last element from buffer
@@ -31,7 +84,7 @@ class serialManager {
     return nextLine
   }
 
-  async clearBuffer(){
+  clearBuffer(){
     while(this.receiveBuffer.length > 0){
       this.receiveBuffer.shift();
     }
@@ -42,30 +95,34 @@ class serialManager {
   };
 
   async connect() {
-    if (!navigator.serial) return false
-      const usbVendorId = 0x0483;
-      this.port = await navigator.serial.requestPort({ filters: [{ usbVendorId }] })    
-      console.log("Port Selected.")
-  
-      await this.port.open({
-        baudRate: 115200,
-        bufferSize: 255,
-        dataBits: 8,
-        flowControl: "none",
-        parity: "none",
-        stopBits: 1
-      })
-  
-      console.log("Port Opened.")
-      // const { clearToSend, dataCarrierDetect, dataSetReady, ringIndicator} = await this.port.getSignals()
-      // console.log({ clearToSend, dataCarrierDetect, dataSetReady, ringIndicator})
-      this.listen()
-  
-  
-      document.querySelector("#connect").style.background = 'green';
-      document.querySelector("#connect").style.color = 'white';
-      document.querySelector("#connect").innerHTML = 'Connected'; 
-      return true
+    if (!navigator.serial){
+      alert("Please use a browser that supports WebSerial (Chrome).");
+      return false
+    }
+
+    const usbVendorId = 0x0483;
+    this.port = await navigator.serial.requestPort({ filters: [{ usbVendorId }] })    
+    console.log("Port Selected.")
+
+    await this.port.open({
+      baudRate: 115200,
+      bufferSize: 255,
+      dataBits: 8,
+      flowControl: "none",
+      parity: "none",
+      stopBits: 1
+    })
+
+    console.log("Port Opened.")
+    // const { clearToSend, dataCarrierDetect, dataSetReady, ringIndicator} = await this.port.getSignals()
+    // console.log({ clearToSend, dataCarrierDetect, dataSetReady, ringIndicator})
+    this.listen()
+
+
+    document.querySelector("#connect").style.background = 'green';
+    document.querySelector("#connect").style.color = 'white';
+    document.querySelector("#connect").innerHTML = 'Connected'; 
+    return true
   }
   
   // this needs to listen to marlin constantly
@@ -79,11 +136,10 @@ class serialManager {
       const reader = this.port.readable.getReader()
       try {
         while (true) {
-          console.log("reading");
           const { value, done } = await reader.read()
           if (done) {
             // |reader| has been canceled.
-            console.log("closing reader");
+            console.log("Closing reader.");
         
             break;
           }
@@ -96,22 +152,14 @@ class serialManager {
             // console.log(splitted)
             this.receiveBuffer.push(splitted[0])
 
-            console.log(this.receiveBuffer.length)
-
-            let newConsoleEntry = document.createElement('p')
-            let timestamp = new Date().toISOString();
-            
-            newConsoleEntry.innerHTML = timestamp + " - " + splitted[0] + '\n';
-            consoleDiv.appendChild(newConsoleEntry)
-            
-            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            this.appendToConsole(splitted[0], false);
 
             metabuffer = metabuffer.split('\n').slice(1).join('\n');
           }
           
         }
       } catch (error) {
-        console.error('reading error', error)
+        console.error('Reading error.', error)
       } finally {
         reader.releaseLock()
       }
@@ -122,10 +170,14 @@ class serialManager {
     if (this.port?.writable) {
       const writer = await this.port.writable.getWriter()
       for (const element of commandArray) {
-        console.log("Sending Line: " + element)
         await writer.write(this.encoder.encode(element + "\n"))
+        this.appendToConsole(element, true);
+
       }
       writer.releaseLock()
+    }
+    else{
+      alert("Cannot write to port. Have you connected?");
     }
   }
 
@@ -134,29 +186,240 @@ class serialManager {
     this.send(command);
 
   }
+
+  // control
+
+  async leftAirOn(){
+    const commandArray = [
+      "M106",
+      "M106 P1 S255"
+    ]
+    await this.send(commandArray);
+  }
+
+  async leftAirOff(){
+    const commandArray = [
+      "M107",
+      "M107 P1"
+    ]
+    await this.send(commandArray);
+  }
+
+  async rightAirOn(){
+    const commandArray = [
+      "M106 P2 S255",
+      "M106 P3 S255"
+    ]
+    await this.send(commandArray);
+  }
+
+  async rightAirOff(){
+    const commandArray = [
+      "M107 P2",
+      "M107 P3"
+    ]
+    await this.send(commandArray);
+  }
+
+  async ledOn(){
+    const commandArray = [
+      "M150 P255 R255 U255 B255"
+    ]
+
+    await this.send(commandArray);
+  }
+
+  async ledOff(){
+    const commandArray = [
+      "M150 P0"
+    ]
+    await this.send(commandArray);
+  }
+
+  async readLeftVac(){
+
+    if(!this.port?.writable){
+      alert("Cannot write to port. Have you connected?");
+      return false
+    }
+
+    const commandArrayLeft = [
+      "M260 A112 B1 S1",
+      "M260 A109",
+      "M260 B48",
+      "M260 B10",
+      "M260 S1"
+    ]
+
+    const delayVal = 40;
+
+    this.clearBuffer();
+
+    let msb, csb, lsb;
+    const regex = new RegExp('data:(..)');
+
+    //send command array
+    await this.send(commandArrayLeft);
+
+    await this.send(["M260 A109 B6 S1"]);
+    await this.send(["M261 A109 B1 S1"]);
+    await this.delay(delayVal);
+
+    for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
+      let currLine = this.receiveBuffer[i];
+      let result = regex.test(currLine);
+      if(result){
+        msb = currLine.match("data:(..)")[1];
+        break
+      }
+    }
+
+    this.clearBuffer();
+    
+    await this.send(["M260 A109 B7 S1"]);
+    await this.send(["M261 A109 B1 S1"]);
+    await this.delay(delayVal);
+
+    for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
+      let currLine = this.receiveBuffer[i];
+      let result = regex.test(currLine);
+      if(result){
+        csb = currLine.match("data:(..)")[1];
+        break
+      }
+    }
+    
+    await this.send(["M260 A109 B8 S1"]);
+    await this.send(["M261 A109 B1 S1"]);
+    await this.delay(delayVal);
+
+    for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
+      let currLine = this.receiveBuffer[i];
+      let result = regex.test(currLine);
+      if(result){
+        lsb = currLine.match("data:(..)")[1];
+        break
+      }
+    }
+
+    let leftVal = parseInt(msb+csb+lsb, 16);
+    alert("Left vac sensor value: " + leftVal);
+
+  }
+
+  async readRightVac(){
+
+    if(!this.port?.writable){
+      alert("Cannot write to port. Have you connected?");
+      return false
+    }
+
+    const commandArrayRight = [
+      "M260 A112 B2 S1",
+      "M260 A109",
+      "M260 B48",
+      "M260 B10",
+      "M260 S1"
+    ]
+
+    const delayVal = 40;
+
+    let msb, csb, lsb;
+    const regex = new RegExp('data:(..)');
+
+    this.clearBuffer();
+
+    //send command array
+    await this.send(commandArrayRight);
+
+    await this.send(["M260 A109 B6 S1"]);
+    await this.send(["M261 A109 B1 S1"]);
+    await this.delay(delayVal);
+
+    for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
+      let currLine = this.receiveBuffer[i];
+      let result = regex.test(currLine);
+      if(result){
+        msb = currLine.match("data:(..)")[1];
+        break
+      }
+    }
+
+    this.clearBuffer();
+    
+    await this.send(["M260 A109 B7 S1"]);
+    await this.send(["M261 A109 B1 S1"]);
+    await this.delay(delayVal);
+
+    for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
+      let currLine = this.receiveBuffer[i];
+      let result = regex.test(currLine);
+      if(result){
+        csb = currLine.match("data:(..)")[1];
+        break
+      }
+    }
+
+    this.clearBuffer();
+    
+    await this.send(["M260 A109 B8 S1"]);
+    await this.send(["M261 A109 B1 S1"]);
+    await this.delay(delayVal);
+
+    for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
+      let currLine = this.receiveBuffer[i];
+      let result = regex.test(currLine);
+      if(result){
+        lsb = currLine.match("data:(..)")[1];
+        break
+      }
+    }
+
+    let rightVal = parseInt(msb+csb+lsb, 16);
+    alert("Right vacuum sensor value: " + rightVal);
+
+  }
+
   // tests
 
   async testTMC(){
+
+    let testDataBuffer = "";
+
     const commandArray = [
       "M122"
     ]
 
     //clean out receive buffer
+    await this.clearBuffer();
     
-
     //send command array
-    this.send(commandArray);
+    await this.send(commandArray);
+
+    await this.delay(5000);
 
     //check receieve buffer
+    console.log(this.receiveBuffer);
 
+    alert("Downloading test results.");
 
     //alert user
+    let filename = new Date().toISOString();
+    filename = filename + "-tmctest.txt"
 
-    //set button accordingly
+    for(let i = 0; i<this.receiveBuffer.length; i++){
+      testDataBuffer = testDataBuffer.concat(this.receiveBuffer[i] + "\n");
+    }
+
+    this.download(filename, testDataBuffer);
+
 
   }
 
   async testVac(){
+
+    let testDataBuffer = "";
+
     const commandArrayLeft = [
       "M260 A112 B1 S1",
       "M260 A109",
@@ -173,7 +436,7 @@ class serialManager {
       "M260 S1"
     ]
 
-    const delayVal = 20;
+    const delayVal = 40;
 
     this.clearBuffer();
 
@@ -187,12 +450,12 @@ class serialManager {
     await this.send(["M261 A109 B1 S1"]);
     await this.delay(delayVal);
 
-    console.log("current buffer length: ", this.receiveBuffer.length)
     for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
       let currLine = this.receiveBuffer[i];
       let result = regex.test(currLine);
       if(result){
         msb = currLine.match("data:(..)")[1];
+        testDataBuffer = testDataBuffer.concat("Left MSB - " + msb + "\n");
         break
       }
     }
@@ -203,12 +466,12 @@ class serialManager {
     await this.send(["M261 A109 B1 S1"]);
     await this.delay(delayVal);
 
-    console.log("current buffer length: ", this.receiveBuffer.length)
     for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
       let currLine = this.receiveBuffer[i];
       let result = regex.test(currLine);
       if(result){
         csb = currLine.match("data:(..)")[1];
+        testDataBuffer = testDataBuffer.concat("Left CSB - " + csb + "\n");
         break
       }
     }
@@ -219,19 +482,18 @@ class serialManager {
     await this.send(["M261 A109 B1 S1"]);
     await this.delay(delayVal);
 
-    console.log("current buffer length: ", this.receiveBuffer.length)
     for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
       let currLine = this.receiveBuffer[i];
       let result = regex.test(currLine);
       if(result){
         lsb = currLine.match("data:(..)")[1];
+        testDataBuffer = testDataBuffer.concat("Left LSB - " + lsb + "\n");
         break
       }
     }
 
     let leftVal = parseInt(msb+csb+lsb, 16);
-
-    console.log(leftVal);
+    testDataBuffer = testDataBuffer.concat("Left Val - " + leftVal + "\n");
 
     // NOW RIGHT SENSOR
 
@@ -244,12 +506,12 @@ class serialManager {
     await this.send(["M261 A109 B1 S1"]);
     await this.delay(delayVal);
 
-    console.log("current buffer length: ", this.receiveBuffer.length)
     for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
       let currLine = this.receiveBuffer[i];
       let result = regex.test(currLine);
       if(result){
         msb = currLine.match("data:(..)")[1];
+        testDataBuffer = testDataBuffer.concat("Right MSB - " + msb + "\n");
         break
       }
     }
@@ -260,12 +522,12 @@ class serialManager {
     await this.send(["M261 A109 B1 S1"]);
     await this.delay(delayVal);
 
-    console.log("current buffer length: ", this.receiveBuffer.length)
     for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
       let currLine = this.receiveBuffer[i];
       let result = regex.test(currLine);
       if(result){
         csb = currLine.match("data:(..)")[1];
+        testDataBuffer = testDataBuffer.concat("Right CSB - " + csb + "\n");
         break
       }
     }
@@ -282,25 +544,37 @@ class serialManager {
       let result = regex.test(currLine);
       if(result){
         lsb = currLine.match("data:(..)")[1];
+        testDataBuffer = testDataBuffer.concat("Right LSB - " + lsb + "\n");
         break
       }
     }
 
     let rightVal = parseInt(msb+csb+lsb, 16);
-
-    console.log(rightVal);
+    testDataBuffer = testDataBuffer.concat("Right Val - " + rightVal + "\n");
 
     console.log(leftVal, rightVal)
 
-    alert("Left Sensor: " + leftVal + ", Right Sensor: " + rightVal);
+    alert("Downloading test result. Left Sensor: " + leftVal + ", Right Sensor: " + rightVal);
 
+    let filename = new Date().toISOString();
+    filename = filename + "-vactest.txt"
+    this.download(filename, testDataBuffer);
     
-    //alert user
-
-    //set button accordingly
 
   }
   
+  download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+  
+    element.style.display = 'none';
+    document.body.appendChild(element);
+  
+    element.click();
+  
+    document.body.removeChild(element);
+  }
 
 }
 
