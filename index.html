@@ -10,18 +10,9 @@
     <title>LumenPnP Debug</title>
   </head>
   <body>
-    <div id="header-pill">LumenPnP Debug Tool</div>
+    <div id="header-pill"><h1>LumenPnP Debug Tool</h1></div>
     <button id="connect" type="button">Connect</button>
     <div id="main-app">
-      <div id="testing">
-        <h2 style="width:100%">Tests</h2>
-        <button id="tmc" type="button">Test TMC Drivers</button>
-        <button id="vac" type="button">Test Vacuum Sensors</button>
-        <div id="feeders">
-          <h2 style="width:100%;margin-bottom:10px;">Feeders</h2>
-          <button id="feeder-scan">Scan</button>
-        </div>
-      </div>
 
       <div id="control-pane">
         <div id="control">
@@ -42,6 +33,80 @@
           <button id="send" type="button">Send</button>
           <input id="repl-input" type="text" placeholder="Send Gcode"/>
         </div>
+        
+      </div>
+      <div id="feeders">
+        <h2>Feeders</h2>
+
+        <div id="feeder-button-cluster">
+          <button style="width:150px;margin-top:0px;" id="more-controls">More Controls</button>
+          <button style="width:150px;margin-top:0px;" id="feeder-scan">Scan</button>
+        </div>
+        
+        <div style="display:none;" id="found-feeders"></div>
+
+
+        <div style="display:none;" class="feeder-pane" id="unicast">
+          <h3>Unicast</h3>
+          <label>Command: </label>
+          <select style="height:1.5em;" id="uni-command" name="uni-command">
+            <option value="0x01">Get Feeder ID</option>
+            <option value="0x02">Initialize Feeder</option>
+            <option value="0x03">Get Version</option>
+            <option value="0x04">Move Feed Forward</option>
+            <option value="0x05">Move Feed Backward</option>
+            <option value="0x06">Move Feed Status</option>
+            <option value="0xbf">Vendor Options</option>
+          </select>
+          <label>To Address: </label>
+          <input id="uni-to" type="number" min="1" max="255"/>
+          <label style="display:none;" id="uni-payload-label">Payload (in Hex): </label>
+          <input style="display:none;" id="uni-payload" type="text" placeholder="Payload"/>
+          <button id="uni-send">Send</button>
+        </div>
+        <div style="display:none;" class="feeder-pane" id="broadcast">
+          <h3>Broadcast</h3>
+          <label>Command:</label>
+          <select style="height:1.5em;" id="broad-command" name="broad-command">
+            <option value="0xc0">Get Feeder Address</option>
+            <option value="0xc1">Identify Feeder</option>
+            <option value="0xc2">Program Feeder Floor</option>
+            <option value="0xc3">Uninitialized Feeders Respond</option>
+          </select>
+          <label>UUID (Hex String): </label>
+          <input id="broad-uuid" type="text"/>
+          <label>Address to Program: </label>
+          <input id="broad-program-address" type="number" min="1" max="254"/>
+          <button id="broad-send">Send</button>
+
+        </div>
+        <div style="display:none;" class="feeder-pane" id="custom-packet">
+          <h3>Custom Packet</h3>
+          <input id="custom-to" type="number" placeholder="To Address"/>
+          <input id="custom-command" type="number" placeholder="Command"/>
+          <input id="custom-payload" type="text" placeholder="Payload (hex string)"/>
+          <button id="custom-send">Send</button>
+
+        </div>
+        <div style="display:none;" class="feeder-pane" id="crc-tool">
+          <h3>CRC Tool</h3>
+          <input id="calc-to" type="text" placeholder="To Address"/>
+          <input id="calc-from" type="text" placeholder="From Address)"/>
+          <input id="calc-packetid" type="text" placeholder="Packet ID"/>
+          <input id="calc-payload-length" type="text" placeholder="Payload Length (including command byte)"/>
+          <input id="calc-command" type="text" placeholder="Command"/>
+          <input id="calc-payload" type="text" placeholder="Payload"/>
+          <button id="calc-calculate">Calculate</button>
+
+
+        </div>
+        
+      </div>
+
+      <div id="testing">
+        <h2 style="width:100%">Tests</h2>
+        <button id="tmc" type="button">Test TMC Drivers</button>
+        <button id="vac" type="button">Test Vacuum Sensors</button>
       </div>
       
       
