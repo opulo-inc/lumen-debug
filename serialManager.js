@@ -7,6 +7,9 @@ export class serialManager {
 
         this.receiveBuffer = [];
 
+        this.sentCommandBuffer = [""];
+        this.sentCommandBufferIndex = 0;
+
     }
 
     appendToConsole(message, direction){
@@ -133,6 +136,13 @@ export class serialManager {
 
     async sendRepl() {
         let command = [document.querySelector("#repl-input").value];
+
+        //adding current command to buffer for uparrow access later, at position 1 to preserve a "" option
+        this.sentCommandBuffer.splice(1, 0, command[0])
+
+        //making sure we reset the index back to 0
+        this.sentCommandBufferIndex = 0;
+        
         this.send(command);
 
     }
@@ -342,10 +352,8 @@ export class serialManager {
         let testDataBuffer = "";
 
         const commandArray = [
-        "M122"
+            "M122"
         ]
-
-        //TODO add motor current to this test
 
         //clean out receive buffer
         await this.clearBuffer();
@@ -358,15 +366,16 @@ export class serialManager {
         //check receieve buffer
         console.log(this.receiveBuffer);
 
+        //adding to test buffer
+        for(let i = 0; i<this.receiveBuffer.length; i++){
+            testDataBuffer = testDataBuffer.concat(this.receiveBuffer[i] + "\n");
+        }
+
         alert("Downloading test results.");
 
         //alert user
         let filename = new Date().toISOString();
         filename = filename + "-tmctest.txt"
-
-        for(let i = 0; i<this.receiveBuffer.length; i++){
-        testDataBuffer = testDataBuffer.concat(this.receiveBuffer[i] + "\n");
-        }
 
         this.download(filename, testDataBuffer);
 

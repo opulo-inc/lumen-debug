@@ -203,7 +203,7 @@ export class feederBus {
         
 
         // find response in receiveBuffer
-        let response;
+        let response = "";
         const regex = new RegExp('rs485-reply:');
         for (let i=0, x=this.serial.receiveBuffer.length; i<x; i++) {
             let currLine = this.serial.receiveBuffer[i];
@@ -216,6 +216,11 @@ export class feederBus {
 
         if(response == "TIMEOUT"){
             console.log("Received TIMEOUT.");
+            return false;
+        }
+
+        if(response == ""){
+            alert("Your version of Marlin does not support Photon. Please update Marlin to the version in the latest LumenPnP release.");
             return false;
         }
 
@@ -447,9 +452,10 @@ export class feederBus {
                 return false;
             }
             else{
+                //this line does the programming, but it fails because programming takes too long, rs-485 library has too short a timeout
                 let prgmResponse = await this.sendPacket(commands.PROGRAM_FEEDER_FLOOR, 0xFF, response.slice(6).concat(i));
-                //fails because programming takes too long?
-
+                
+                //instead we confirm by just checking to see if the address has actually been updated
                 let currentAddress = await this.sendPacket(commands.GET_FEEDER_ADDRESS, 0xFF, response.slice(6))
                 
                 if(currentAddress != false && currentAddress[1] == i){
@@ -463,9 +469,7 @@ export class feederBus {
                     }
                 }
             }
-            
         }
     }
-
 }
 

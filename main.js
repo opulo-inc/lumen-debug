@@ -14,9 +14,35 @@ function clearReplInput(){
 
 // clicks the send button if you hit the enter key while repl filed is focused
 document.getElementById("repl-input").addEventListener("keyup", function(event) {
-  if (event.keyCode === 13){
+  if (event.code === "Enter"){
     event.preventDefault();
     document.getElementById("send").click();
+  }
+  else if (event.code === "ArrowUp"){
+    event.preventDefault();
+
+    //check to see that our index isnt at the end of commands sent
+    if(serial.sentCommandBufferIndex == serial.sentCommandBuffer.length - 1){
+      return false;
+    }
+    //update the buffer index
+    serial.sentCommandBufferIndex++;
+    //then drop that new element into the field
+    document.getElementById("repl-input").value = serial.sentCommandBuffer[serial.sentCommandBufferIndex];
+
+  }
+  else if (event.code === "ArrowDown"){
+    event.preventDefault();
+
+    //check to see that our index isnt at the end of commands sent
+    if(serial.sentCommandBufferIndex == 0){
+      return false;
+    }
+    //update the buffer index
+    serial.sentCommandBufferIndex--;
+    //then drop that new element into the field
+    document.getElementById("repl-input").value = serial.sentCommandBuffer[serial.sentCommandBufferIndex];
+
   }
 });
 
