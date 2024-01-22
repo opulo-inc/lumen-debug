@@ -112,35 +112,6 @@ export class feederBus {
       return gcodeString;
     }
 
-    processResponse_GET_ID(response, sentPacketID, sentAddress){
-
-        //check packetid
-        if(response[2] != sentPacketID){
-            console.log("packetids dont match");
-            return false;
-        }
-
-        if(response[1] != sentAddress){
-            console.log("address doesnt matchr");
-            return false;
-        }
-
-        response.splice(0, 5);
-
-        console.log(response);
-
-        let uuidString = "";
-        for (let i=0; i<response.length; i++){
-            let hex = response[i].toString(16);
-            if(hex.length == 1){
-                hex = "0".concat(hex);
-            }
-            uuidString = uuidString.concat(hex.toUpperCase());
-        }
-
-        console.log("UUID: ", uuidString);
-
-    }
   
     async sendPacket(command, address, payload){
         // checking we have a recipient address if we need one
@@ -191,8 +162,33 @@ export class feederBus {
         // send string
         await this.serial.send([sendableString]);
 
-        //todo convert this to waiting for OK in receiveBuffer instead of just waiting
-        await this.serial.delay(200);
+        let startTime = Date.now();
+
+        while(true){
+            //giving the listen process a moment to breathe and receive any incoming stuff
+            await this.serial.delay(10);
+
+            if(Date.now() - startTime > 400){
+                console.log("Timeout: didn't get serial response.");
+                return false;
+            }
+
+            let okReceived = false;
+
+            console.log(this.serial.receiveBuffer);
+
+            const regex = new RegExp('ok');
+            for (let i=0, x=this.serial.receiveBuffer.length; i<x; i++) {
+                let currLine = this.serial.receiveBuffer[i];
+                okReceived = regex.test(currLine);
+                if(okReceived){
+                    break;
+                }
+            }
+            if(okReceived){
+                break;
+            }
+        }
 
         //saving sent packetid
         let sentPacketID = this.packetID;
@@ -437,6 +433,38 @@ export class feederBus {
         }
 
         document.getElementById("feeder-scan").innerHTML="Scan";
+    }
+
+    async programSlotsUtility(){
+        alert("To program your slots, first remove all Photon feeders from your machine. Once you've done this, click ok.");
+        
+        for(let i=1; i<51; i++){
+            alert("Insert a feeder into slot " + i + ". Once you've done this, click ok.");
+            //program
+            let response = await this.sendPacket(commands.UNINITIALIZED_FEEDERS_RESPOND, 0xFF);
+            if(response == false){
+                alert("Programming feeder not found. Exiting.");
+                return false;
+            }
+            else{
+                let prgmResponse = await this.sendPacket(commands.PROGRAM_FEEDER_FLOOR, 0xFF, response.slice(6).concat(i));
+                //fails because programming takes too long?
+
+                let currentAddress = await this.sendPacket(commands.GET_FEEDER_ADDRESS, 0xFF, response.slice(6))
+                
+                if(currentAddress != false && currentAddress[1] == i){
+                    if(!confirm("Slot has been programmed with address " + i + "! Remove the feeder from the slot, then click ok to move to the next address. Click cancel to stop.")){
+                        return false;
+                    }
+                }
+                else{
+                    if(!confirm("Programming Failed for slot " + i + ". Would you like to continue?")){
+                        return false;
+                    }
+                }
+            }
+            
+        }
     }
 
 }

@@ -112,6 +112,10 @@ document.getElementById("calc-calculate").addEventListener("click", () => {
   feeder.calculateUserCRC();
 });
 
+document.getElementById("program-slots").addEventListener("click", () => {
+  feeder.programSlotsUtility();
+});
+
 document.getElementById("more-controls").addEventListener("click", () => {
   document.getElementById("unicast").style.display = "block";
   document.getElementById("broadcast").style.display = "block";
