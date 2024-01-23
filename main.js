@@ -9,25 +9,25 @@ let serial = new serialManager(modal);
 let feeder = new feederBus(serial, modal);
 
 document.getElementById("modal-close").addEventListener("click", () => {
-  modal.receivedInput = 0;
+  modal.receivedInput = false;
   modal.hide();
 });
 
 document.getElementById("modal-ok").addEventListener("keyup", function(event) {
   if (event.code === "Enter"){
     event.preventDefault();
-    modal.receivedInput = 1;
+    modal.receivedInput = true;
     modal.hide();
   }
 });
 
 document.getElementById("modal-ok").addEventListener("click", () => {
-  modal.receivedInput = 1;
+  modal.receivedInput = true;
   modal.hide();
 });
 
 document.getElementById("modal-ng").addEventListener("click", () => {
-  modal.receivedInput = 0;
+  modal.receivedInput = false;
   modal.hide();
 });
 

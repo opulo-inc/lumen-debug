@@ -10,7 +10,7 @@ export class modalManager {
 
         this.modalOK = document.getElementById("modal-ok");
 
-        this.receivedInput = -1;
+        this.receivedInput = undefined;
     }
 
     timeout = async ms => new Promise(res => setTimeout(res, ms));
@@ -37,12 +37,12 @@ export class modalManager {
 
     async waitForUserSelection() {
         //wait for a buttonpress in another function to ste received input to something other than -1
-        while (this.receivedInput == -1) await this.timeout(50);
+        while (this.receivedInput === undefined) await this.timeout(50);
 
         //grab value
         let userValue = this.receivedInput;
         //reset for the next thing
-        this.receivedInput = -1;
+        this.receivedInput = undefined;
 
         return userValue;
 

@@ -444,14 +444,24 @@ export class feederBus {
     }
 
     async programSlotsUtility(){
-        alert("To program your slots, first remove all Photon feeders from your machine. Once you've done this, click ok.");
-        
+
+        let resp = await this.modal.show("Before Beginning", "To program your slots, first remove all Photon feeders from your machine. Once you've done this, click ok.\n\nIf at any point you'd like to exit this utility, click cancel.");
+        console.log(resp);
+        if(!resp){
+            return false;
+        }
+
         for(let i=1; i<51; i++){
-            alert("Insert a feeder into slot " + i + ". Once you've done this, click ok.");
+
+            resp = await this.modal.show("Insert a Feeder","Insert a feeder into slot " + i + ". Once you've done this, click ok.");
+            if(!resp){
+                return false;
+            }
+
             //program
             let response = await this.sendPacket(commands.UNINITIALIZED_FEEDERS_RESPOND, 0xFF);
             if(response == false){
-                alert("Programming feeder not found. Exiting.");
+                resp = await this.modal.show("Programming Feeder Not Found","The feeder you inserted was not detected. Exiting.");
                 return false;
             }
             else{
@@ -462,14 +472,21 @@ export class feederBus {
                 let currentAddress = await this.sendPacket(commands.GET_FEEDER_ADDRESS, 0xFF, response.slice(6))
                 
                 if(currentAddress != false && currentAddress[1] == i){
-                    if(!confirm("Slot has been programmed with address " + i + "! Remove the feeder from the slot, then click ok to move to the next address. Click cancel to stop.")){
+
+                    resp = await this.modal.show("Success","Slot has been programmed with address " + i + "! Remove the feeder from the slot, then click ok to move to the next address.");
+                    if(!resp){
                         return false;
                     }
                 }
                 else{
-                    if(!confirm("Programming Failed for slot " + i + ". Would you like to continue?")){
+                    resp = await this.modal.show("Failure","Programming Failed for slot " + i + ". Click OK to retry.");
+                    if(!resp){
                         return false;
                     }
+                    else{
+                        i--;
+                    }
+                    
                 }
             }
         }

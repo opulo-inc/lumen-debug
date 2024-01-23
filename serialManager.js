@@ -377,7 +377,7 @@ export class serialManager {
 
         let resp = await this.modal.show("Stepper Driver Test Complete", "Test is complete. Click OK to download test report.");
 
-        if(resp == 1){
+        if(resp == true){
             let filename = new Date().toISOString();
             filename = filename + "-tmctest.txt"
 
@@ -532,7 +532,7 @@ export class serialManager {
 
         let resp = await this.modal.show("Vacuum Sensor Test Complete", "Test is complete. Click OK to download test report.");
 
-        if(resp == 1){
+        if(resp == true){
             let filename = new Date().toISOString();
             filename = filename + "-vactest.txt"
             this.download(filename, testDataBuffer);
