@@ -451,12 +451,13 @@ export class feederBus {
             return false;
         }
 
-        for(let i=1; i<51; i++){
+        while(true){
 
-            resp = await this.modal.show("Insert a Feeder","Insert a feeder into slot " + i + ". Once you've done this, click ok.");
-            if(!resp){
+            let address = await this.modal.show("Insert a Feeder","Insert a feeder into the slot you'd like to program. Enter the address you'd like to program in the field below. Once you've done this, click ok.", 1);
+            if(!address){
                 return false;
             }
+
 
             //program
             let response = await this.sendPacket(commands.UNINITIALIZED_FEEDERS_RESPOND, 0xFF);
@@ -466,14 +467,14 @@ export class feederBus {
             }
             else{
                 //this line does the programming, but it fails because programming takes too long, rs-485 library has too short a timeout
-                let prgmResponse = await this.sendPacket(commands.PROGRAM_FEEDER_FLOOR, 0xFF, response.slice(6).concat(i));
+                let prgmResponse = await this.sendPacket(commands.PROGRAM_FEEDER_FLOOR, 0xFF, response.slice(6).concat(address));
                 
                 //instead we confirm by just checking to see if the address has actually been updated
                 let currentAddress = await this.sendPacket(commands.GET_FEEDER_ADDRESS, 0xFF, response.slice(6))
                 
                 if(currentAddress != false && currentAddress[1] == i){
 
-                    resp = await this.modal.show("Success","Slot has been programmed with address " + i + "! Remove the feeder from the slot, then click ok to move to the next address.");
+                    resp = await this.modal.show("Success","Slot has been programmed with address " + address + "! Remove the feeder from the slot, then click OK to program another.");
                     if(!resp){
                         return false;
                     }
@@ -482,11 +483,7 @@ export class feederBus {
                     resp = await this.modal.show("Failure","Programming Failed for slot " + i + ". Click OK to retry.");
                     if(!resp){
                         return false;
-                    }
-                    else{
-                        i--;
-                    }
-                    
+                    }                    
                 }
             }
         }

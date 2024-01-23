@@ -420,3 +420,8 @@ button:focus-visible {
   width:100%;
   color:#222;
 }
+
+#modal-num-input {
+  margin:0px auto;
+  margin-bottom: 20px;
+}
