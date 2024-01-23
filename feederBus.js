@@ -458,12 +458,12 @@ export class feederBus {
                 return false;
             }
 
+            address = parseInt(address);
 
             //program
             let response = await this.sendPacket(commands.UNINITIALIZED_FEEDERS_RESPOND, 0xFF);
             if(response == false){
-                resp = await this.modal.show("Programming Feeder Not Found","The feeder you inserted was not detected. Exiting.");
-                return false;
+                resp = await this.modal.show("Programming Feeder Not Found","The feeder you inserted was not detected.");
             }
             else{
                 //this line does the programming, but it fails because programming takes too long, rs-485 library has too short a timeout
@@ -472,7 +472,7 @@ export class feederBus {
                 //instead we confirm by just checking to see if the address has actually been updated
                 let currentAddress = await this.sendPacket(commands.GET_FEEDER_ADDRESS, 0xFF, response.slice(6))
                 
-                if(currentAddress != false && currentAddress[1] == i){
+                if(currentAddress != false && currentAddress[1] == address){
 
                     resp = await this.modal.show("Success","Slot has been programmed with address " + address + "! Remove the feeder from the slot, then click OK to program another.");
                     if(!resp){
@@ -480,7 +480,7 @@ export class feederBus {
                     }
                 }
                 else{
-                    resp = await this.modal.show("Failure","Programming Failed for slot " + i + ". Click OK to retry.");
+                    resp = await this.modal.show("Failure","Programming Failed for slot " + address + ". Click OK to retry.");
                     if(!resp){
                         return false;
                     }                    
