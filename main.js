@@ -1,11 +1,35 @@
 import './style.css'
+import { modalManager } from './modal.js'
 import { serialManager } from './serialManager.js';
 import { feederBus } from './feederBus';
-import {commands} from './commands.js'
+import { commands } from './commands.js'
 
+let modal = new modalManager();
+let serial = new serialManager(modal);
+let feeder = new feederBus(serial, modal);
 
-let serial = new serialManager();
-let feeder = new feederBus(serial);
+document.getElementById("modal-close").addEventListener("click", () => {
+  modal.receivedInput = 0;
+  modal.hide();
+});
+
+document.getElementById("modal-ok").addEventListener("keyup", function(event) {
+  if (event.code === "Enter"){
+    event.preventDefault();
+    modal.receivedInput = 1;
+    modal.hide();
+  }
+});
+
+document.getElementById("modal-ok").addEventListener("click", () => {
+  modal.receivedInput = 1;
+  modal.hide();
+});
+
+document.getElementById("modal-ng").addEventListener("click", () => {
+  modal.receivedInput = 0;
+  modal.hide();
+});
 
 //clears the contents of the repl text field
 function clearReplInput(){

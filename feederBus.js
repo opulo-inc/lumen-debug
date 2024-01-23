@@ -14,10 +14,11 @@ export class feederBus {
 
     // fake enum in the structure of [command_byte, unicast/broadcast, send payload length]
     
-    constructor(serialManager) {
+    constructor(serialManager, modal) {
       this.serial = serialManager;
       this.packetID = 0x00;
       this.feeders = [];
+      this.modal = modal;
 
     }
 
@@ -219,8 +220,9 @@ export class feederBus {
             return false;
         }
 
+        //this is only true if we never get a regex match on the rs485-reply string
         if(response == ""){
-            alert("Your version of Marlin does not support Photon. Please update Marlin to the version in the latest LumenPnP release.");
+            this.modal.show("Photon Support", "Your version of Marlin does not support Photon. Please update Marlin to the version in the <a href='https://github.com/opulo-inc/lumenpnp/releases'>latest LumenPnP release</a> using the instructions <a href='https://docs.opulo.io/byop/motherboard/update-firmware/'>here</a>.");
             return false;
         }
 
@@ -281,7 +283,7 @@ export class feederBus {
             this.beautifyResponse(response);
         }
         else{
-            alert("We did not receive a valid packet.");
+            this.modal.show("Invalid Packet", "We did not receive a valid packet.");
         }
         
 
@@ -316,7 +318,8 @@ export class feederBus {
             this.beautifyResponse(response);
         }
         else{
-            alert("We did not receive a valid packet.");
+            this.modal.show("Invalid Packet", "We did not receive a valid packet.");
+
         }
 
     }
@@ -327,7 +330,7 @@ export class feederBus {
         let payload = parseInt(document.getElementById("calc-payload").value);
 
         if(to === NaN || command === NaN){
-            alert("Please make sure you've entered at least a To Address and a Command");
+            this.modal.show("Invalid Command", "Please make sure you've entered at least a To Address and a Command.");
             return false;
         }
 
@@ -344,7 +347,7 @@ export class feederBus {
             this.beautifyResponse(response);
         }
         else{
-            alert("We did not receive a valid packet.");
+            this.modal.show("Invalid Packet", "We did not receive a valid packet.");
         }
         
     }
@@ -362,7 +365,7 @@ export class feederBus {
         data = data.concat(payload);
 
         let crc = this.calcCRC(data);
-        alert(crc);
+        this.modal.show("CRC Result", crc);
 
     }
 

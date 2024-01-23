@@ -1,9 +1,11 @@
 export class serialManager {
-    constructor() {
+    constructor(modal) {
         this.encoder = new TextEncoder();
         this.decoder = new TextDecoder();
         this.consoleDiv = document.getElementById("console");
         this.port;
+
+        this.modal = modal;
 
         this.receiveBuffer = [];
 
@@ -48,7 +50,7 @@ export class serialManager {
 
     async connect() {
         if (!navigator.serial){
-            alert("Please use a browser that supports WebSerial (Chrome).");
+            this.modal.show("Browser Support", "Please use a browser that supports WebSerial, like Chrome, Opera, or Edge. <a href='https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API#browser_compatibility'>Supported Browsers.");
             return false
         }
 
@@ -130,7 +132,7 @@ export class serialManager {
         writer.releaseLock()
         }
         else{
-        alert("Cannot write to port. Have you connected?");
+            this.modal.show("Cannot Write", "Cannot write to port. Have you connected?");
         }
     }
 
@@ -199,7 +201,7 @@ export class serialManager {
     async readLeftVac(){
 
         if(!this.port?.writable){
-        alert("Cannot write to port. Have you connected?");
+        this.modal.show("Cannot Write", "Cannot write to port. Have you connected?");
         return false
         }
 
@@ -263,14 +265,15 @@ export class serialManager {
         }
 
         let leftVal = parseInt(msb+csb+lsb, 16);
-        alert("Left vac sensor value: " + leftVal);
+
+        let resp = await this.modal.show("Left Vacuum Sensor Value", leftVal);
 
     }
 
     async readRightVac(){
 
         if(!this.port?.writable){
-        alert("Cannot write to port. Have you connected?");
+            this.modal.show("Cannot Write", "Cannot write to port. Have you connected?");
         return false
         }
 
@@ -336,7 +339,8 @@ export class serialManager {
         }
 
         let rightVal = parseInt(msb+csb+lsb, 16);
-        alert("Right vacuum sensor value: " + rightVal);
+
+        await this.modal.show("Right Vacuum Sensor Value", rightVal);
 
     }
 
@@ -345,7 +349,7 @@ export class serialManager {
     async testTMC(){
 
         if(!this.port?.writable){
-        alert("Cannot write to port. Have you connected?");
+            this.modal.show("Cannot Write", "Cannot write to port. Have you connected?");
         return false
         }
 
@@ -371,13 +375,14 @@ export class serialManager {
             testDataBuffer = testDataBuffer.concat(this.receiveBuffer[i] + "\n");
         }
 
-        alert("Downloading test results.");
+        let resp = await this.modal.show("Stepper Driver Test Complete", "Test is complete. Click OK to download test report.");
 
-        //alert user
-        let filename = new Date().toISOString();
-        filename = filename + "-tmctest.txt"
+        if(resp == 1){
+            let filename = new Date().toISOString();
+            filename = filename + "-tmctest.txt"
 
-        this.download(filename, testDataBuffer);
+            this.download(filename, testDataBuffer);
+        }
 
 
     }
@@ -385,7 +390,7 @@ export class serialManager {
     async testVac(){
 
         if(!this.port?.writable){
-        alert("Cannot write to port. Have you connected?");
+            this.modal.show("Cannot Write", "Cannot write to port. Have you connected?");
         return false
         }
 
@@ -525,12 +530,13 @@ export class serialManager {
 
         console.log(leftVal, rightVal)
 
-        alert("Downloading test result. Left Sensor: " + leftVal + ", Right Sensor: " + rightVal);
+        let resp = await this.modal.show("Vacuum Sensor Test Complete", "Test is complete. Click OK to download test report.");
 
-        let filename = new Date().toISOString();
-        filename = filename + "-vactest.txt"
-        this.download(filename, testDataBuffer);
-        
+        if(resp == 1){
+            let filename = new Date().toISOString();
+            filename = filename + "-vactest.txt"
+            this.download(filename, testDataBuffer);
+        }
 
     }
 
