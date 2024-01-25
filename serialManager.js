@@ -198,6 +198,13 @@ export class serialManager {
         await this.send(commandArray);
     }
 
+    async disableSteppers(){
+        const commandArray = [
+            "M18"
+            ]
+            await this.send(commandArray);
+    }
+
     async readLeftVac(){
 
         if(!this.port?.writable){

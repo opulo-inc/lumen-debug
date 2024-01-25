@@ -136,6 +136,30 @@ document.getElementById("right-vac").addEventListener("click", () => {
   serial.readRightVac();
 });
 
+document.getElementById("disable-steppers").addEventListener("click", () => {
+  serial.disableSteppers();
+});
+
+document.getElementById("home-x").addEventListener("click", () => {
+  serial.send(["G28 X"]);
+});
+
+document.getElementById("home-y").addEventListener("click", () => {
+  serial.send(["G28 Y"]);
+});
+
+document.getElementById("home-z").addEventListener("click", () => {
+  serial.send(["G28 Z"]);
+});
+
+document.getElementById("jog-max").addEventListener("click", () => {
+  serial.send(["G0 X300 Y300"]);
+});
+
+document.getElementById("jog-min").addEventListener("click", () => {
+  serial.send(["G0 X10 Y10"]);
+});
+
 document.getElementById("feeder-scan").addEventListener("click", () => {
   if (!serial.port?.writable){
     alert("Cannot write to port. Have you connected?");

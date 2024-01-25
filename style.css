@@ -111,6 +111,17 @@ label {
   height:100%;
 }
 
+#control .fifthwidth {
+  width:17%;  
+  margin:1%;
+  margin-bottom:0px;
+}
+
+#control .fourthwidth {
+  width:22%;  
+  margin:1%;
+}
+
 #control .thirdwidth {
   width:31%;  
   margin:1%;
@@ -337,7 +348,7 @@ button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
-  font-size: 1em;
+  font-size: 0.8em;
   font-weight: 500;
   font-family: inherit;
   background-color: #222;
@@ -424,4 +435,13 @@ button:focus-visible {
 #modal-num-input {
   margin:0px auto;
   margin-bottom: 20px;
+}
+
+#jog-pane {
+  background-color: #eee;
+  
+  padding:1%;
+  margin-top:1%;
+  width:100%;
+  padding-bottom:0px;
 }
