@@ -12,6 +12,21 @@ export class serialManager {
         this.sentCommandBuffer = [""];
         this.sentCommandBufferIndex = 0;
 
+        this.bootCommands = [
+            "G90",
+            "M260 A112 B1 S1",
+            "M260 A109",
+            "M260 B48",
+            "M260 B27",
+            "M260 S1",
+            "M260 A112 B2 S1",
+            "M260 A109",
+            "M260 B48",
+            "M260 B27",
+            "M260 S1",
+            "G0 F35000"
+        ];
+
     }
 
     appendToConsole(message, direction){
@@ -76,6 +91,10 @@ export class serialManager {
         document.querySelector("#connect").style.background = 'green';
         document.querySelector("#connect").style.color = 'white';
         document.querySelector("#connect").innerHTML = 'Connected'; 
+
+        //send boot commands
+        this.send(this.bootCommands)
+
         return true
     }
 
@@ -213,11 +232,7 @@ export class serialManager {
         }
 
         const commandArrayLeft = [
-        "M260 A112 B1 S1",
-        "M260 A109",
-        "M260 B48",
-        "M260 B10",
-        "M260 S1"
+        "M260 A112 B1 S1"
         ]
 
         const delayVal = 40;
@@ -232,7 +247,6 @@ export class serialManager {
 
         await this.send(["M260 A109 B6 S1"]);
         await this.send(["M261 A109 B1 S1"]);
-        await this.delay(delayVal);
 
         for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
         let currLine = this.receiveBuffer[i];
@@ -247,7 +261,6 @@ export class serialManager {
         
         await this.send(["M260 A109 B7 S1"]);
         await this.send(["M261 A109 B1 S1"]);
-        await this.delay(delayVal);
 
         for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
         let currLine = this.receiveBuffer[i];
@@ -275,6 +288,10 @@ export class serialManager {
 
         let resp = await this.modal.show("Left Vacuum Sensor Value", leftVal);
 
+        this.clearBuffer();
+
+        
+
     }
 
     async readRightVac(){
@@ -286,13 +303,7 @@ export class serialManager {
 
         const commandArrayRight = [
         "M260 A112 B2 S1",
-        "M260 A109",
-        "M260 B48",
-        "M260 B10",
-        "M260 S1"
         ]
-
-        const delayVal = 40;
 
         let msb, csb, lsb;
         const regex = new RegExp('data:(..)');
@@ -304,7 +315,6 @@ export class serialManager {
 
         await this.send(["M260 A109 B6 S1"]);
         await this.send(["M261 A109 B1 S1"]);
-        await this.delay(delayVal);
 
         for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
         let currLine = this.receiveBuffer[i];
@@ -319,7 +329,6 @@ export class serialManager {
         
         await this.send(["M260 A109 B7 S1"]);
         await this.send(["M261 A109 B1 S1"]);
-        await this.delay(delayVal);
 
         for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
         let currLine = this.receiveBuffer[i];
@@ -334,7 +343,6 @@ export class serialManager {
         
         await this.send(["M260 A109 B8 S1"]);
         await this.send(["M261 A109 B1 S1"]);
-        await this.delay(delayVal);
 
         for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
         let currLine = this.receiveBuffer[i];

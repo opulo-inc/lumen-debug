@@ -153,7 +153,7 @@ document.getElementById("home-z").addEventListener("click", () => {
 });
 
 document.getElementById("jog-max").addEventListener("click", () => {
-  serial.send(["G0 X300 Y300"]);
+  serial.send(["G0 X100 Y100"]);
 });
 
 document.getElementById("jog-min").addEventListener("click", () => {
