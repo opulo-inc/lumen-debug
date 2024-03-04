@@ -59,6 +59,10 @@ export class serialManager {
         }
     }
 
+    dec2bin(dec) {
+        return (dec >>> 0).toString(2);
+    }
+
     delay = (delayInms) => {
         return new Promise(resolve => setTimeout(resolve, delayInms));
     };
@@ -235,7 +239,7 @@ export class serialManager {
         "M260 A112 B1 S1"
         ]
 
-        const delayVal = 40;
+        const delayVal = 50;
 
         this.clearBuffer();
 
@@ -245,16 +249,20 @@ export class serialManager {
         //send command array
         await this.send(commandArrayLeft);
 
+        this.clearBuffer();
+
         await this.send(["M260 A109 B6 S1"]);
         await this.send(["M261 A109 B1 S1"]);
 
+        await this.delay(delayVal);
+
         for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
-        let currLine = this.receiveBuffer[i];
-        let result = regex.test(currLine);
-        if(result){
-            msb = currLine.match("data:(..)")[1];
-            break
-        }
+            let currLine = this.receiveBuffer[i];
+            let result = regex.test(currLine);
+            if(result){
+                msb = currLine.match("data:(..)")[1];
+                break
+            }
         }
 
         this.clearBuffer();
@@ -262,29 +270,43 @@ export class serialManager {
         await this.send(["M260 A109 B7 S1"]);
         await this.send(["M261 A109 B1 S1"]);
 
-        for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
-        let currLine = this.receiveBuffer[i];
-        let result = regex.test(currLine);
-        if(result){
-            csb = currLine.match("data:(..)")[1];
-            break
-        }
-        }
-        
-        await this.send(["M260 A109 B8 S1"]);
-        await this.send(["M261 A109 B1 S1"]);
         await this.delay(delayVal);
 
         for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
-        let currLine = this.receiveBuffer[i];
-        let result = regex.test(currLine);
-        if(result){
-            lsb = currLine.match("data:(..)")[1];
-            break
-        }
+            let currLine = this.receiveBuffer[i];
+            let result = regex.test(currLine);
+            if(result){
+                csb = currLine.match("data:(..)")[1];
+                break
+            }
         }
 
-        let leftVal = parseInt(msb+csb+lsb, 16);
+        this.clearBuffer();
+        
+        await this.send(["M260 A109 B8 S1"]);
+        await this.send(["M261 A109 B1 S1"]);
+
+        await this.delay(delayVal);
+
+        for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
+            let currLine = this.receiveBuffer[i];
+            let result = regex.test(currLine);
+            if(result){
+                lsb = currLine.match("data:(..)")[1];
+                break
+            }
+        }
+
+        // convert hex string to int
+        msb = parseInt(msb, 16);
+
+        // get biggest bit to determine sign
+        let readingSign = (msb & (1 << 7)) === 0 ? 1 : -1;
+
+        // clear biggest bit for actual value calc
+        msb &= 0x7F;
+
+        let leftVal = parseInt(msb.toString(16)+csb+lsb, 16) * readingSign;
 
         let resp = await this.modal.show("Left Vacuum Sensor Value", leftVal);
 
@@ -308,52 +330,69 @@ export class serialManager {
         let msb, csb, lsb;
         const regex = new RegExp('data:(..)');
 
+        const delayVal = 50;
+
         this.clearBuffer();
 
         //send command array
         await this.send(commandArrayRight);
+        await this.delay(delayVal);
+
+        this.clearBuffer();
 
         await this.send(["M260 A109 B6 S1"]);
         await this.send(["M261 A109 B1 S1"]);
+        await this.delay(delayVal);
 
         for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
-        let currLine = this.receiveBuffer[i];
-        let result = regex.test(currLine);
-        if(result){
-            msb = currLine.match("data:(..)")[1];
-            break
-        }
+            let currLine = this.receiveBuffer[i];
+            let result = regex.test(currLine);
+            if(result){
+                msb = currLine.match("data:(..)")[1];
+                break
+            }
         }
 
         this.clearBuffer();
         
         await this.send(["M260 A109 B7 S1"]);
         await this.send(["M261 A109 B1 S1"]);
+        await this.delay(delayVal);
 
         for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
-        let currLine = this.receiveBuffer[i];
-        let result = regex.test(currLine);
-        if(result){
-            csb = currLine.match("data:(..)")[1];
-            break
-        }
+            let currLine = this.receiveBuffer[i];
+            let result = regex.test(currLine);
+            if(result){
+                csb = currLine.match("data:(..)")[1];
+                break
+            }
         }
 
         this.clearBuffer();
         
         await this.send(["M260 A109 B8 S1"]);
         await this.send(["M261 A109 B1 S1"]);
+        await this.delay(delayVal);
 
         for (var i=0, x=this.receiveBuffer.length; i<x; i++) {
-        let currLine = this.receiveBuffer[i];
-        let result = regex.test(currLine);
-        if(result){
-            lsb = currLine.match("data:(..)")[1];
-            break
-        }
+            let currLine = this.receiveBuffer[i];
+            let result = regex.test(currLine);
+            if(result){
+                lsb = currLine.match("data:(..)")[1];
+                break
+            }
         }
 
-        let rightVal = parseInt(msb+csb+lsb, 16);
+        // convert hex string to int
+        msb = parseInt(msb, 16);
+
+        // get biggest bit to determine sign
+        let readingSign = (msb & (1 << 7)) === 0 ? 1 : -1;
+
+        // clear biggest bit for actual value calc
+        msb &= 0x7F;
+
+        let rightVal = parseInt(msb.toString(16)+csb+lsb, 16) * readingSign;
 
         await this.modal.show("Right Vacuum Sensor Value", rightVal);
 
