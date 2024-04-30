@@ -443,6 +443,24 @@ export class feederBus {
         document.getElementById("feeder-scan").innerHTML="Scan";
     }
 
+    async flashFifty(){
+        let response = await this.sendPacket(commands.GET_ID, 50)
+        if(response != false){
+            //we got somethin! is it an OK response?
+            if(response[5] == 0){
+                //grab uuid
+                let uuid = response.slice(6)
+                
+                //send initialize with uuid
+                let initResponse = await this.sendPacket(commands.INITIALIZE, 50, uuid);
+
+                await this.sendPacket(commands.IDENTIFY_FEEDER, 0xFF, uuid);
+
+                
+            }
+        }
+    }
+
     async programSlotsUtility(){
 
         let resp = await this.modal.show("Before Beginning", "To program your slots, first remove all Photon feeders from your machine. Once you've done this, click ok.\n\nIf at any point you'd like to exit this utility, click cancel.");

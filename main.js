@@ -195,6 +195,11 @@ document.getElementById("more-controls").addEventListener("click", () => {
   document.getElementById("broadcast").style.display = "block";
   document.getElementById("custom-packet").style.display = "block";
   document.getElementById("crc-tool").style.display = "block";
+  document.getElementById("flash-at-fifty").style.display= "block";
+});
+
+document.getElementById("flash-fifty-button").addEventListener("click", () => {
+  feeder.flashFifty();
 });
 
 //event delegation style listener for the feeder parent div, handling feeding and such from the parent
