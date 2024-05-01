@@ -450,12 +450,10 @@ export class feederBus {
             if(response[5] == 0){
                 //grab uuid
                 let uuid = response.slice(6)
-                
-                //send initialize with uuid
-                let initResponse = await this.sendPacket(commands.INITIALIZE, 50, uuid);
 
                 await this.sendPacket(commands.IDENTIFY_FEEDER, 0xFF, uuid);
 
+                return true
                 
             }
         }

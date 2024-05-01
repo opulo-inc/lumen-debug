@@ -310,9 +310,7 @@ export class serialManager {
 
         let resp = await this.modal.show("Left Vacuum Sensor Value", leftVal);
 
-        this.clearBuffer();
-
-        
+        this.clearBuffer();        
 
     }
 
