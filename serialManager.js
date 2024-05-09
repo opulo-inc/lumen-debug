@@ -298,17 +298,23 @@ export class serialManager {
         }
 
         // convert hex string to int
-        msb = parseInt(msb, 16);
+        //msb = parseInt(msb, 16);
 
         // get biggest bit to determine sign
-        let readingSign = (msb & (1 << 7)) === 0 ? 1 : -1;
+        //let readingSign = (msb & (1 << 7)) === 0 ? 1 : -1;
 
         // clear biggest bit for actual value calc
-        msb &= 0x7F;
+        //msb &= 0x7F;
 
-        let leftVal = parseInt(msb.toString(16)+csb+lsb, 16) * readingSign;
+        let result = parseInt(msb+csb+lsb, 16);
 
-        let resp = await this.modal.show("Left Vacuum Sensor Value", leftVal);
+        if(result & (1 << 23)){
+            result = result - 2**24
+        }
+
+        
+
+        let resp = await this.modal.show("Left Vacuum Sensor Value", result);
 
         this.clearBuffer();        
 
@@ -381,18 +387,24 @@ export class serialManager {
             }
         }
 
-        // convert hex string to int
-        msb = parseInt(msb, 16);
+        // // convert hex string to int
+        // msb = parseInt(msb, 16);
 
-        // get biggest bit to determine sign
-        let readingSign = (msb & (1 << 7)) === 0 ? 1 : -1;
+        // // get biggest bit to determine sign
+        // let readingSign = (msb & (1 << 7)) === 0 ? 1 : -1;
 
-        // clear biggest bit for actual value calc
-        msb &= 0x7F;
+        // // clear biggest bit for actual value calc
+        // msb &= 0x7F;
 
-        let rightVal = parseInt(msb.toString(16)+csb+lsb, 16) * readingSign;
+        // let rightVal = parseInt(msb.toString(16)+csb+lsb, 16) * readingSign;
 
-        await this.modal.show("Right Vacuum Sensor Value", rightVal);
+        let result = parseInt(msb+csb+lsb, 16);
+
+        if(result & (1 << 23)){
+            result = result - 2**24
+        }
+
+        await this.modal.show("Right Vacuum Sensor Value", result);
 
     }
 
