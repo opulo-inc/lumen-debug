@@ -533,6 +533,11 @@ export class serialManager {
         }
 
         let leftVal = parseInt(msb+csb+lsb, 16);
+
+        if(leftVal & (1 << 23)){
+            leftVal = leftVal - 2**24
+        }
+
         testDataBuffer = testDataBuffer.concat("Left Val - " + leftVal + "\n");
 
         // NOW RIGHT SENSOR
@@ -590,6 +595,11 @@ export class serialManager {
         }
 
         let rightVal = parseInt(msb+csb+lsb, 16);
+
+        if(rightVal & (1 << 23)){
+            rightVal = rightVal - 2**24
+        }
+
         testDataBuffer = testDataBuffer.concat("Right Val - " + rightVal + "\n");
 
         console.log(leftVal, rightVal)
