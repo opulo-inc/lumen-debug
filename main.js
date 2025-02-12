@@ -205,8 +205,10 @@ document.getElementById("flash-fifty-button").addEventListener("click", () => {
 //event delegation style listener for the feeder parent div, handling feeding and such from the parent
 // https://davidwalsh.name/event-delegate
 document.getElementById("found-feeders").addEventListener("click", function(e) {
+
 	// e.target is the clicked element!
   let clickedElement = e.target;
+
 	// If it was a list item
 	if(clickedElement.className.split(' ').includes("identify") && clickedElement.nodeName == "BUTTON") {
 		// List item found!  Output the ID!
@@ -218,6 +220,7 @@ document.getElementById("found-feeders").addEventListener("click", function(e) {
 
     feeder.sendPacket(commands.IDENTIFY_FEEDER, 0xFF, uuid);
 	}
+
   else if(clickedElement.className.split(' ').includes("feed") && clickedElement.nodeName == "BUTTON"){
     let foundFeederDiv = clickedElement.parentElement;
 
@@ -227,6 +230,19 @@ document.getElementById("found-feeders").addEventListener("click", function(e) {
 
     feeder.sendPacket(commands.MOVE_FEED_FORWARD, addr, 0x28);
   }
+
+  else if(clickedElement.className.split(' ').includes("firmware") && clickedElement.nodeName == "BUTTON"){
+    let foundFeederDiv = clickedElement.parentElement;
+
+    let addr = foundFeederDiv.getElementsByTagName('H3')[0].innerHTML;
+
+    addr = parseInt(addr);
+
+    feeder.getFirmware(addr);
+  }
+
+
+
 });
 
 

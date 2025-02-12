@@ -152,6 +152,27 @@ export class feederBus {
         //if there's more payload than just the command id, or it's defined from payload.length we add it in
         if(command[2] > 1 || command[2] == 0){
             data = data.concat(payload);
+
+            console.log("header and command ID")
+            console.log(data);
+
+            console.log("submitted payload")
+            console.log(payload);
+
+            console.log("payload difference")
+            console.log(command[2] - 1 - payload.length);
+
+            const payloadDiff = command[2] - 1 - payload.length;
+
+            if(payloadDiff > 0){ // if payload isn't padded out, stuff zeros
+
+                let stuff = Array(payloadDiff).fill(0);
+                console.log(stuff);
+                data = data.concat(stuff);
+                console.log(data);
+
+            }
+
         }
 
         //convert to gcode line
@@ -418,12 +439,19 @@ export class feederBus {
                         newFeed.appendChild(feedText);
                         newFeed.classList.add("feed");
 
+                        //firmware button
+                        let newFirmware = document.createElement("button");
+                        let firmwareText = document.createTextNode("FW Version");
+                        newFirmware.appendChild(firmwareText);
+                        newFirmware.classList.add("firmware");
+
                         newFeederDiv.appendChild(feederImage);
                         newFeederDiv.appendChild(newAddress);
                         newFeederDiv.appendChild(newUUID);
                         newFeederDiv.appendChild(newButton);
                         newFeederDiv.appendChild(newFeed);
-                        newFeederDiv.classList.add("found-feeder")
+                        newFeederDiv.appendChild(newFirmware);
+                        newFeederDiv.classList.add("found-feeder");
 
                         let foundFeeders = document.getElementById("found-feeders");
 
@@ -453,12 +481,42 @@ export class feederBus {
 
                 await this.sendPacket(commands.IDENTIFY_FEEDER, 0xFF, uuid);
 
-                return true
-
-                
+                return true                
                 
             }
         }
+    }
+
+    async getFirmware(address){
+        console.log(address);
+
+        let versionString = "";
+
+        for(let i = 0; i<16; i++){ //go through all sixteen pages of 20
+
+            let response = await this.sendPacket(commands.VENDOR_OPTIONS, address, [i]);
+
+            if(response == false){
+                this.modal.show("Firmware Version of Feeder at Slot " + address, "Firmware is 1.3 or earlier, update feeder firmware to use this feature.");
+                return;
+            }
+
+            for(let j = 0; j < response.length; j++){
+                const character = String.fromCharCode(response[j]);
+                if(j > 4){
+                    versionString = versionString + character;
+                    console.log(character);
+                }
+
+            }
+
+            console.log(versionString);
+        }
+        
+
+        console.log(versionString);
+
+        this.modal.show("Firmware Version of Feeder at Slot " + address, versionString);
     }
 
     async programSlotsUtility(){
